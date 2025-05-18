@@ -1,4 +1,5 @@
 import { ModelEvaluation } from '@/lib/types';
+import { evaluations } from '@/lib/data'; // Import static data directly
 import { fetchModels } from '@/lib/fetchers'; // 상세 페이지에서 데이터를 가져올 fetcher 함수
 
 // 동적 라우트 파라미터의 타입을 정의
@@ -10,22 +11,28 @@ interface ModelDetailPageProps {
 
 // 동적으로 페이지 생성 시 필요한 함수 (Next.js)
 export async function generateStaticParams() {
-  const models = await fetchModels(); // 모든 모델 데이터를 가져옴
-
-  // 각 모델 이름에 대해 페이지를 생성하도록 파라미터 반환
-  return models.map((model) => ({
-    name: model.model, // 모델 이름을 파라미터로 사용
+  // Use static data directly during build time
+  return evaluations.map((model) => ({
+    name: model.model,
   }));
 }
 
 // 모델 상세 페이지 컴포넌트
 export default async function ModelDetailPage({ params }: ModelDetailPageProps) {
-  const modelName = params.name; // URL에서 모델 이름 추출
+  const modelName = params.name;
 
-  // 여기에서 modelName을 사용하여 특정 모델의 상세 데이터를 가져오는 로직이 필요합니다.
-  // 현재는 fetchModels가 모든 모델을 가져오므로, 여기서는 간단히 필터링합니다.
-  const allModels = await fetchModels();
-  const modelData = allModels.find(model => model.model === modelName);
+  // During build time and initial page load, use static data
+  let modelData = evaluations.find(model => model.model === modelName);
+
+  // If not found in static data, try fetching from API (client-side navigation)
+  if (!modelData) {
+    try {
+      const allModels = await fetchModels();
+      modelData = allModels.find(model => model.model === modelName);
+    } catch (error) {
+      console.error('Error fetching model data:', error);
+    }
+  }
 
   if (!modelData) {
     // 해당 모델을 찾지 못했을 경우 404 페이지 또는 메시지 표시
