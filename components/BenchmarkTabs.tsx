@@ -3,16 +3,17 @@
 import { useState } from 'react';
 import ModelTable from "./ModelTable";
 import ModelChart from "./ModelChart";
-import { ModelEvaluation } from '@/lib/types';
+import { ModelEvaluation, BenchmarkExplanation } from '@/lib/types';
 import { useCasePresets } from '@/lib/data';
 import clsx from 'clsx';
 
 interface BenchmarkTabsProps {
   evaluations: ModelEvaluation[];
   selectedUseCase: string;
+  benchmarkExplanations: BenchmarkExplanation[];
 }
 
-export default function BenchmarkTabs({ evaluations, selectedUseCase }: BenchmarkTabsProps) {
+export default function BenchmarkTabs({ evaluations, selectedUseCase, benchmarkExplanations }: BenchmarkTabsProps) {
   const [activeTab, setActiveTab] = useState<'table' | 'chart'>('table');
 
   // 선택된 사용 목적에 따라 모델 정렬
@@ -94,9 +95,9 @@ export default function BenchmarkTabs({ evaluations, selectedUseCase }: Benchmar
       {/* 테이블/차트 컨텐츠 */}
       <div className="mt-6">
         {activeTab === 'table' ? (
-          <ModelTable evaluations={sortedEvaluations} />
+          <ModelTable evaluations={sortedEvaluations} benchmarkExplanations={benchmarkExplanations} />
         ) : (
-          <ModelChart evaluations={sortedEvaluations} />
+          <ModelChart evaluations={sortedEvaluations} benchmarkExplanations={benchmarkExplanations} />
         )}
       </div>
     </div>
