@@ -17,6 +17,12 @@ export default function Header() {
             <Link href="/about" className="text-gray-600 hover:text-primary-600">
               About
             </Link>
+            <Link href="/video-models" className="text-gray-600 hover:text-primary-600">
+              Video Models
+            </Link>
+            <Link href="/audio-models" className="text-gray-600 hover:text-primary-600">
+              Audio Models
+            </Link>
           </nav>
         </div>
       </div>
