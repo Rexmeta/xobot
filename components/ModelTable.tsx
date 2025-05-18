@@ -1,7 +1,7 @@
 'use client'; // 클라이언트 컴포넌트로 변경
 
 import { useState } from 'react';
-import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody } from "@/components/ui/table";
+// import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody } from "@/components/ui/table"; // shadcn/ui Table 임포트 제거
 import { ModelData } from '@/lib/types';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid'; // 아이콘 추가
 import clsx from 'clsx'; // 조건부 클래스 적용을 위한 라이브러리
@@ -59,30 +59,30 @@ export default function ModelTable({ data }: ModelTableProps) {
 
   return (
     <div className="overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className={getHeaderClass('model')} onClick={() => handleSort('model')}>모델 {renderSortIcon('model')}</TableHead>
-            <TableHead className={getHeaderClass('truthfulqa')} onClick={() => handleSort('truthfulqa')}>TruthfulQA {renderSortIcon('truthfulqa')}</TableHead>
-            <TableHead className={getHeaderClass('mtbench')} onClick={() => handleSort('mtbench')}>MT Bench {renderSortIcon('mtbench')}</TableHead>
-            <TableHead className={getHeaderClass('toxicity')} onClick={() => handleSort('toxicity')}>Toxicity ↓ {renderSortIcon('toxicity')}</TableHead>
-            <TableHead className={getHeaderClass('hallucination')} onClick={() => handleSort('hallucination')}>Hallucination ↓ {renderSortIcon('hallucination')}</TableHead>
-            <TableHead className={getHeaderClass('averageScore')} onClick={() => handleSort('averageScore')}>평균 점수 {renderSortIcon('averageScore')}</TableHead>
-          </TableRow>
-        </TableHeader>
-      <TableBody>
-        {sortedData.map((item) => (
-          <TableRow key={item.model}>
-            <TableCell className="font-medium">{item.model}</TableCell>
-            <TableCell>{item.truthfulqa.toFixed(1)}</TableCell>
-            <TableCell>{item.mtbench.toFixed(1)}/10</TableCell>
-            <TableCell>{item.toxicity.toFixed(1)}%</TableCell>
-            <TableCell>{item.hallucination.toFixed(1)}%</TableCell>
-            <TableCell className="font-medium text-primary-600">{item.averageScore.toFixed(1)}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className={getHeaderClass('model')} onClick={() => handleSort('model')}>모델 {renderSortIcon('model')}</th>
+            <th className={getHeaderClass('truthfulqa')} onClick={() => handleSort('truthfulqa')}>TruthfulQA {renderSortIcon('truthfulqa')}</th>
+            <th className={getHeaderClass('mtbench')} onClick={() => handleSort('mtbench')}>MT Bench {renderSortIcon('mtbench')}</th>
+            <th className={getHeaderClass('toxicity')} onClick={() => handleSort('toxicity')}>Toxicity ↓ {renderSortIcon('toxicity')}</th>
+            <th className={getHeaderClass('hallucination')} onClick={() => handleSort('hallucination')}>Hallucination ↓ {renderSortIcon('hallucination')}</th>
+            <th className={getHeaderClass('averageScore')} onClick={() => handleSort('averageScore')}>평균 점수 {renderSortIcon('averageScore')}</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {sortedData.map((item) => (
+            <tr key={item.model} className="hover:bg-gray-50">
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.model}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.truthfulqa.toFixed(1)}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.mtbench.toFixed(1)}/10</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.toxicity.toFixed(1)}%</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.hallucination.toFixed(1)}%</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary-600">{item.averageScore.toFixed(1)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 } 
