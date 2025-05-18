@@ -5,8 +5,8 @@ import '../styles/globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AI Model Benchmark Viewer',
-  description: 'Compare performance metrics of various AI models',
+  title: "XOBOT ONE | AI Model Dashboard",
+  description: "Compare GPT, Claude, LLaMA, Gemini and other LLMs across trust, truth, and safety metrics.",
 }
 
 export default function RootLayout({

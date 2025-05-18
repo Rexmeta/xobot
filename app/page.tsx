@@ -60,6 +60,9 @@ export default function Home() {
             <h1 className="text-2xl font-semibold text-gray-900 mb-6">
               AI Model Performance Comparison
             </h1>
+            <p className="text-gray-600 mb-4 max-w-2xl">
+              최신 생성형 AI 모델들의 주요 벤치마크 점수를 비교합니다. 각 수치는 <b>논문 기반</b> 또는 <b>공개 벤치마크 리더보드</b>에서 가져온 결과이며, <b>신뢰성, 정확도, 유해성</b> 등을 포함합니다.
+            </p>
             <BenchmarkTabs evaluations={evaluations} />
           </div>
         </div>
