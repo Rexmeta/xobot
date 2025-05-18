@@ -5,6 +5,13 @@
   "installCommand": "npm install",
   "framework": "nextjs",
   "regions": ["icn1"],
+  "rootDirectory": ".",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
   "env": {
     "NEXT_PUBLIC_HUGGINGFACE_API_KEY": "@next_public_huggingface_api_key"
   }
