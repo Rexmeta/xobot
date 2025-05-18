@@ -25,6 +25,16 @@ export interface ModelEvaluation {
   strengths?: string[];
   useCases?: string[];
   recommendedFor?: string[];
+  // Fields based on artificialanalysis.ai models and providers pages
+  creator?: string; // e.g., "OpenAI", "Google"
+  intelligenceIndex?: number; // Artificial Analysis Intelligence Index
+  pricePerMillionTokens?: number; // Blended USD/1M Tokens
+  outputSpeed?: number; // Median Tokens/s
+  latency?: number; // Median First Chunk (s)
+  contextWindow?: number; // Tokens
+  outputPrice?: number; // USD/1M Output Tokens
+  inputPrice?: number; // USD/1M Input Tokens
+  license?: string; // e.g., "Proprietary", "Open"
 }
 
 export interface BenchmarkExplanation {

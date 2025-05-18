@@ -23,6 +23,12 @@ export default function Header() {
             <Link href="/audio-models" className="text-gray-600 hover:text-primary-600">
               Audio Models
             </Link>
+            <Link href="/providers" className="text-gray-600 hover:text-primary-600">
+              Providers
+            </Link>
+            <Link href="/models-comparison" className="text-gray-600 hover:text-primary-600">
+              Model Comparison
+            </Link>
           </nav>
         </div>
       </div>
