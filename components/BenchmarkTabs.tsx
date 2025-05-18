@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import ModelTable from "./ModelTable";
 import ModelChart from "./ModelChart";
-import { ModelData } from '@/lib/types';
+import { ModelEvaluation } from '@/lib/types';
 import clsx from 'clsx';
 
 interface BenchmarkTabsProps {
-  models: ModelData[];
+  evaluations: ModelEvaluation[];
 }
 
-export default function BenchmarkTabs({ models }: BenchmarkTabsProps) {
+export default function BenchmarkTabs({ evaluations }: BenchmarkTabsProps) {
   const [activeTab, setActiveTab] = useState<'table' | 'chart'>('table');
 
   return (
@@ -45,9 +45,9 @@ export default function BenchmarkTabs({ models }: BenchmarkTabsProps) {
       <div className="mt-4">
         <div className="bg-white rounded-lg shadow p-6">
           {activeTab === 'table' ? (
-            <ModelTable data={models} />
+            <ModelTable evaluations={evaluations} />
           ) : (
-            <ModelChart data={models} />
+            <ModelChart evaluations={evaluations} />
           )}
         </div>
       </div>

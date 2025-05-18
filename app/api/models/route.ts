@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { models } from '@/lib/data';
+import { evaluations } from '@/lib/data';
 
 export async function GET() {
-  return NextResponse.json(models);
+  return NextResponse.json(evaluations);
 } 

@@ -1,33 +1,50 @@
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer
-} from 'recharts'
-import { ModelData } from '@/lib/types'
+'use client';
+
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import { ModelEvaluation, BenchmarkResult } from '@/lib/types';
 
 interface ModelChartProps {
-  data: ModelData[]
+  evaluations: ModelEvaluation[];
 }
 
-export default function ModelChart({ data }: ModelChartProps) {
+export default function ModelChart({ evaluations }: ModelChartProps) {
+  const chartBenchmarkNames = ['TruthfulQA', 'MT Bench', 'Toxicity', 'Hallucination', 'MMLU', 'HumanEval'];
+
+  const chartData = evaluations.map(evaluation => {
+    const dataPoint: { [key: string]: string | number } = { model: evaluation.model };
+    evaluation.benchmarks.forEach(benchmark => {
+      if (chartBenchmarkNames.includes(benchmark.name) && typeof benchmark.score === 'number') {
+        dataPoint[benchmark.name] = benchmark.score;
+      }
+    });
+    return dataPoint;
+  });
+
+  const benchmarkColors: { [key: string]: string } = {
+    'TruthfulQA': '#4f46e5',
+    'MT Bench': '#16a34a',
+    'Toxicity': '#f97316',
+    'Hallucination': '#dc2626',
+    'MMLU': '#0ea5e9',
+    'HumanEval': '#6366f1',
+  };
+
   return (
     <div className="h-[400px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} layout="vertical">
-          <XAxis type="number" domain={[0, 100]} />
-          <YAxis type="category" dataKey="model" />
+        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <XAxis dataKey="model" />
+          <YAxis />
           <Tooltip />
-          <Bar dataKey="truthfulqa" fill="#4f46e5" name="TruthfulQA" />
-          <Bar dataKey="mtbench" fill="#16a34a" name="MT Bench" />
-          <Bar dataKey="toxicity" fill="#f97316" name="Toxicity" />
-          <Bar dataKey="hallucination" fill="#dc2626" name="Hallucination" />
+          <Legend />
+          {chartBenchmarkNames.map(name => {
+            if (chartData.some(dataPoint => typeof dataPoint[name] === 'number')) {
+               return <Bar key={name} dataKey={name} fill={benchmarkColors[name] || '#cccccc'} name={name} />;
+            }
+            return null;
+          })}
         </BarChart>
       </ResponsiveContainer>
     </div>
-  )
+  );
 } 

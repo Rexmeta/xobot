@@ -1,6 +1,6 @@
-import { ModelData } from '@/lib/types';
+import { ModelEvaluation } from '@/lib/types';
 
-export async function fetchModels(): Promise<ModelData[]> {
+export async function fetchModels(): Promise<ModelEvaluation[]> {
   const res = await fetch('/api/models');
   if (!res.ok) {
     throw new Error('Failed to fetch models');

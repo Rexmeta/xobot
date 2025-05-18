@@ -2,45 +2,56 @@
 
 import { useState } from 'react';
 // import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody } from "@/components/ui/table"; // shadcn/ui Table 임포트 제거
-import { ModelData } from '@/lib/types';
+import { ModelEvaluation, BenchmarkResult } from '@/lib/types';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid'; // 아이콘 추가
 import clsx from 'clsx'; // 조건부 클래스 적용을 위한 라이브러리
 
 interface ModelTableProps {
-  data: ModelData[];
+  evaluations: ModelEvaluation[];
 }
 
-type SortField = keyof ModelData;
+type SortField = string;
 
-export default function ModelTable({ data }: ModelTableProps) {
-  const [sortField, setSortField] = useState<SortField>('averageScore');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+export default function ModelTable({ evaluations }: ModelTableProps) {
+  const allBenchmarkNames = Array.from(new Set(
+    evaluations.flatMap(eval => eval.benchmarks.map(b => b.name))
+  ));
+
+  const [sortField, setSortField] = useState<SortField>('model');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
       setSortField(field);
-      setSortDirection('desc');
+      setSortDirection('asc');
     }
   };
 
-  const sortedData = [...data].sort((a, b) => {
-    const aValue = a[sortField];
-    const bValue = b[sortField];
-
-    if (aValue < bValue) {
-      return sortDirection === 'asc' ? -1 : 1;
-    } else if (aValue > bValue) {
-      return sortDirection === 'asc' ? 1 : -1;
+  const sortedEvaluations = [...evaluations].sort((a, b) => {
+    if (sortField === 'model') {
+      const aValue = a.model;
+      const bValue = b.model;
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
     } else {
+      const aBenchmark = a.benchmarks.find(b => b.name === sortField);
+      const bBenchmark = b.benchmarks.find(b => b.name === sortField);
+
+      const aValue = aBenchmark ? (typeof aBenchmark.score === 'number' ? aBenchmark.score : -Infinity) : -Infinity;
+      const bValue = bBenchmark ? (typeof bBenchmark.score === 'number' ? bBenchmark.score : -Infinity) : -Infinity;
+
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
       return 0;
     }
   });
 
   const renderSortIcon = (field: SortField) => {
     if (sortField !== field) {
-      return null; // 현재 정렬 필드가 아니면 아이콘 표시 안 함
+      return null;
     }
     if (sortDirection === 'asc') {
       return <ChevronUpIcon className="ml-1 w-3 h-3 inline-block" />;
@@ -53,9 +64,19 @@ export default function ModelTable({ data }: ModelTableProps) {
     clsx(
       "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer",
       {
-        "text-primary-600": sortField === field, // 현재 정렬 필드 강조
+        "text-primary-600": sortField === field,
       }
     );
+
+  const getBenchmarkScore = (benchmarks: BenchmarkResult[], name: string): string => {
+    const benchmark = benchmarks.find(b => b.name === name);
+    if (!benchmark) return '-';
+    if (typeof benchmark.score === 'number') {
+      return `${benchmark.score.toFixed(1)}${benchmark.unit || ''}`;
+    } else {
+      return `${benchmark.score}${benchmark.unit || ''}`;
+    }
+  };
 
   return (
     <div className="overflow-x-auto">
@@ -63,22 +84,22 @@ export default function ModelTable({ data }: ModelTableProps) {
         <thead className="bg-gray-50">
           <tr>
             <th className={getHeaderClass('model')} onClick={() => handleSort('model')}>모델 {renderSortIcon('model')}</th>
-            <th className={getHeaderClass('truthfulqa')} onClick={() => handleSort('truthfulqa')}>TruthfulQA {renderSortIcon('truthfulqa')}</th>
-            <th className={getHeaderClass('mtbench')} onClick={() => handleSort('mtbench')}>MT Bench {renderSortIcon('mtbench')}</th>
-            <th className={getHeaderClass('toxicity')} onClick={() => handleSort('toxicity')}>Toxicity ↓ {renderSortIcon('toxicity')}</th>
-            <th className={getHeaderClass('hallucination')} onClick={() => handleSort('hallucination')}>Hallucination ↓ {renderSortIcon('hallucination')}</th>
-            <th className={getHeaderClass('averageScore')} onClick={() => handleSort('averageScore')}>평균 점수 {renderSortIcon('averageScore')}</th>
+            {allBenchmarkNames.map(name => (
+              <th key={name} className={getHeaderClass(name)} onClick={() => handleSort(name)}>
+                {name} {renderSortIcon(name)}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {sortedData.map((item) => (
-            <tr key={item.model} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.model}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.truthfulqa.toFixed(1)}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.mtbench.toFixed(1)}/10</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.toxicity.toFixed(1)}%</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.hallucination.toFixed(1)}%</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary-600">{item.averageScore.toFixed(1)}</td>
+          {sortedEvaluations.map((evaluation) => (
+            <tr key={evaluation.model} className="hover:bg-gray-50">
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{evaluation.model}</td>
+              {allBenchmarkNames.map(name => (
+                <td key={name} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {getBenchmarkScore(evaluation.benchmarks, name)}
+                </td>
+              ))}
             </tr>
           ))}
         </tbody>

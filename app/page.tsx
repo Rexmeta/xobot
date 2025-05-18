@@ -4,28 +4,28 @@ import { useState, useEffect } from 'react';
 import Header from '../components/Header'
 import BenchmarkTabs from '@/components/BenchmarkTabs'
 import { fetchModels } from '@/lib/fetchers'
-import { ModelData } from '@/lib/types'
+import { ModelEvaluation } from '@/lib/types'
 
 export default function Home() {
-  const [models, setModels] = useState<ModelData[]>([]);
+  const [evaluations, setEvaluations] = useState<ModelEvaluation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const getData = async () => {
       try {
-        const fetchedModels = await fetchModels();
-        setModels(fetchedModels);
+        const fetchedEvaluations = await fetchModels();
+        setEvaluations(fetchedEvaluations);
       } catch (err) {
-        setError('데이터를 가져오는데 실패했습니다.'); // 사용자에게 보여줄 에러 메시지
-        console.error('Error fetching models:', err); // 개발자용 상세 로그
+        setError('데이터를 가져오는데 실패했습니다.');
+        console.error('Error fetching evaluations:', err);
       } finally {
         setIsLoading(false);
       }
     };
 
     getData();
-  }, []); // 빈 배열: 컴포넌트 마운트 시 한 번만 실행
+  }, []);
 
   if (isLoading) {
     return (
@@ -43,7 +43,7 @@ export default function Home() {
     );
   }
 
-  if (models.length === 0) {
+  if (evaluations.length === 0) {
      return (
       <main className="p-6 max-w-6xl mx-auto flex justify-center items-center h-screen text-gray-600">
         <p>표시할 모델 데이터가 없습니다.</p>
@@ -60,7 +60,7 @@ export default function Home() {
             <h1 className="text-2xl font-semibold text-gray-900 mb-6">
               AI Model Performance Comparison
             </h1>
-            <BenchmarkTabs models={models} />
+            <BenchmarkTabs evaluations={evaluations} />
           </div>
         </div>
       </main>
