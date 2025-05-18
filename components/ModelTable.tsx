@@ -14,7 +14,7 @@ type SortField = string;
 
 export default function ModelTable({ evaluations }: ModelTableProps) {
   const allBenchmarkNames = Array.from(new Set(
-    evaluations.flatMap(eval => eval.benchmarks.map(b => b.name))
+    evaluations.flatMap(evaluationItem => evaluationItem.benchmarks.map(b => b.name))
   ));
 
   const [sortField, setSortField] = useState<SortField>('model');
