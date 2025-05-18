@@ -55,4 +55,11 @@ export interface ProviderModelPerformance {
   totalResponseTime?: number; // Total Response (s)
   reasoningTime?: number; // Reasoning Time (s)
   // Add any other relevant metrics from the site
+}
+
+export interface ProviderSummary {
+  provider: string;
+  models: string[];
+  latest: string;
+  updated: string;
 } 

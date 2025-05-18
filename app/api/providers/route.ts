@@ -1,22 +1,32 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  // TODO: Replace with your actual GitHub raw JSON URL for provider performance data
-  const res = await fetch("https://raw.githubusercontent.com/placeholder-user/placeholder-repo/main/provider-models.json", {
-    cache: "no-store", // Ensure fresh data on each request
-  });
+  const data = [
+    {
+      provider: "OpenAI",
+      models: ["GPT-3.5", "GPT-4", "DALL·E 3"],
+      latest: "GPT-4 Turbo",
+      updated: "2024-05-17",
+    },
+    {
+      provider: "Anthropic",
+      models: ["Claude 2", "Claude 3 Haiku", "Claude 3 Opus"],
+      latest: "Claude 3 Opus",
+      updated: "2024-05-15",
+    },
+    {
+      provider: "Meta",
+      models: ["LLaMA 2", "LLaMA 3"],
+      latest: "LLaMA 3 70B",
+      updated: "2024-05-10",
+    },
+    {
+      provider: "Google DeepMind",
+      models: ["Gemini 1.0", "Gemini 1.5"],
+      latest: "Gemini 1.5 Pro",
+      updated: "2024-05-16",
+    },
+  ];
 
-   if (!res.ok) {
-    // Handle HTTP errors
-    return new NextResponse(`Failed to fetch data from GitHub: ${res.status} ${res.statusText}`, { status: res.status });
-  }
-
-  try {
-    const models = await res.json();
-    return NextResponse.json(models);
-  } catch (error) {
-    // Handle JSON parsing errors
-    console.error("Error parsing JSON from GitHub:", error);
-    return new NextResponse("Failed to parse JSON data from GitHub.", { status: 500 });
-  }
+  return NextResponse.json(data);
 } 
