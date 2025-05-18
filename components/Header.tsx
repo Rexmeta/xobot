@@ -29,6 +29,9 @@ export default function Header() {
             <Link href="/models-comparison" className="text-gray-600 hover:text-primary-600">
               Model Comparison
             </Link>
+            <Link href="/models-leaderboard" className="text-gray-600 hover:text-primary-600">
+              Total Model Leaderboard
+            </Link>
           </nav>
         </div>
       </div>
