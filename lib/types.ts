@@ -4,4 +4,5 @@ export interface ModelData {
   mtbench: number;
   toxicity: number;
   hallucination: number;
+  averageScore: number;
 } 

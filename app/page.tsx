@@ -1,9 +1,55 @@
+'use client'; // 클라이언트 컴포넌트로 변경
+
+import { useState, useEffect } from 'react';
 import Header from '../components/Header'
 import BenchmarkTabs from '@/components/BenchmarkTabs'
 import { fetchModels } from '@/lib/fetchers'
+import { ModelData } from '@/lib/types'
 
-export default async function Home() {
-  const models = await fetchModels();
+export default function Home() {
+  const [models, setModels] = useState<ModelData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const fetchedModels = await fetchModels();
+        setModels(fetchedModels);
+      } catch (err) {
+        setError('데이터를 가져오는데 실패했습니다.'); // 사용자에게 보여줄 에러 메시지
+        console.error('Error fetching models:', err); // 개발자용 상세 로그
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getData();
+  }, []); // 빈 배열: 컴포넌트 마운트 시 한 번만 실행
+
+  if (isLoading) {
+    return (
+      <main className="p-6 max-w-6xl mx-auto flex justify-center items-center h-screen">
+        <p>데이터 로딩 중...</p>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="p-6 max-w-6xl mx-auto flex justify-center items-center h-screen text-red-600">
+        <p>{error}</p>
+      </main>
+    );
+  }
+
+  if (models.length === 0) {
+     return (
+      <main className="p-6 max-w-6xl mx-auto flex justify-center items-center h-screen text-gray-600">
+        <p>표시할 모델 데이터가 없습니다.</p>
+      </main>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
