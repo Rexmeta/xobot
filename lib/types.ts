@@ -42,4 +42,17 @@ export interface UseCasePreset {
   weights: {
     [key: string]: number;
   };
+}
+
+export interface ProviderModelPerformance {
+  provider: string; // API Provider name, e.g., "OpenAI", "Google Cloud Vertex AI"
+  model: string; // Model name, e.g., "GPT-4o mini", "Gemini 2.5 Pro"
+  contextWindow?: number; // Tokens
+  intelligenceIndex?: number; // Artificial Analysis Intelligence Index (if available for this provider/model combo)
+  pricePerMillionTokens?: number; // Blended USD/1M Tokens
+  outputSpeed?: number; // Median Tokens/s
+  latency?: number; // Median First Chunk (s)
+  totalResponseTime?: number; // Total Response (s)
+  reasoningTime?: number; // Reasoning Time (s)
+  // Add any other relevant metrics from the site
 } 
