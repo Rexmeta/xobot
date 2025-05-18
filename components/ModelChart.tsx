@@ -8,52 +8,24 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts'
-
-interface ModelData {
-  name: string
-  truthfulQA: number
-  mtBench: number
-  toxicity: number
-  hallucination: number
-  averageScore: number
-}
+import { ModelData } from '@/lib/types'
 
 interface ModelChartProps {
   data: ModelData[]
 }
 
 export default function ModelChart({ data }: ModelChartProps) {
-  const chartData = data.map(model => ({
-    name: model.name,
-    'TruthfulQA': model.truthfulQA,
-    'MT Bench': model.mtBench,
-    'Toxicity': model.toxicity,
-    'Hallucination': model.hallucination,
-    'Average': model.averageScore
-  }))
-
   return (
     <div className="h-[400px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={chartData}
-          margin={{
-            top: 20,
-            right: 30,
-            left: 20,
-            bottom: 5,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
+        <BarChart data={data} layout="vertical">
+          <XAxis type="number" domain={[0, 100]} />
+          <YAxis type="category" dataKey="model" />
           <Tooltip />
-          <Legend />
-          <Bar dataKey="TruthfulQA" fill="#0ea5e9" />
-          <Bar dataKey="MT Bench" fill="#10b981" />
-          <Bar dataKey="Toxicity" fill="#ef4444" />
-          <Bar dataKey="Hallucination" fill="#f59e0b" />
-          <Bar dataKey="Average" fill="#6366f1" />
+          <Bar dataKey="truthfulqa" fill="#4f46e5" name="TruthfulQA" />
+          <Bar dataKey="mtbench" fill="#16a34a" name="MT Bench" />
+          <Bar dataKey="toxicity" fill="#f97316" name="Toxicity" />
+          <Bar dataKey="hallucination" fill="#dc2626" name="Hallucination" />
         </BarChart>
       </ResponsiveContainer>
     </div>
