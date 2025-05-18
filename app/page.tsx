@@ -91,27 +91,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 벤치마크 설명 */}
-        <div className="px-4 py-6 sm:px-0 mb-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">평가 지표 설명</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {benchmarkExplanations.map((explanation) => (
-                <div key={explanation.name} className="p-4 border rounded-lg">
-                  <h3 className="font-medium text-gray-900">{explanation.name}</h3>
-                  <p className="text-sm text-gray-600 mt-1">{explanation.description}</p>
-                  <div className="mt-2 text-sm">
-                    <span className="text-blue-600">이상적인 점수: {explanation.idealScore}</span>
-                    <p className="text-gray-500 mt-1">적합한 경우: {explanation.useCase}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
         {/* 모델 비교 테이블 */}
-        <div className="px-4 py-6 sm:px-0">
+        <div className="px-4 py-6 sm:px-0 mb-6">
           <div className="bg-white rounded-lg shadow p-6">
             <h1 className="text-2xl font-semibold text-gray-900 mb-6">
               AI 모델 성능 비교
@@ -120,6 +101,43 @@ export default function Home() {
               최신 생성형 AI 모델들의 주요 벤치마크 점수를 비교합니다. 각 수치는 <b>논문 기반</b> 또는 <b>공개 벤치마크 리더보드</b>에서 가져온 결과이며, <b>신뢰성, 정확도, 유해성</b> 등을 포함합니다.
             </p>
             <BenchmarkTabs evaluations={evaluations} selectedUseCase={selectedUseCase} />
+          </div>
+        </div>
+
+        {/* 벤치마크 설명 */}
+        <div className="px-4 py-6 sm:px-0">
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">평가 지표 설명</h2>
+            <p className="text-gray-600 mb-6">
+              각 평가 지표는 모델의 다른 측면을 측정합니다. 마우스를 지표 이름 위에 올리면 자세한 설명을 볼 수 있습니다.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {benchmarkExplanations.map((explanation) => (
+                <div key={explanation.name} className="p-4 border rounded-lg bg-gray-50">
+                  <h3 className="font-medium text-gray-900 flex items-center">
+                    {explanation.name}
+                    <span className={`ml-2 text-xs px-2 py-1 rounded-full ${
+                      explanation.higherIsBetter 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {explanation.higherIsBetter ? '높을수록 좋음' : '낮을수록 좋음'}
+                    </span>
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-2">{explanation.description}</p>
+                  <div className="mt-3 text-sm">
+                    <div className="flex items-center text-blue-600">
+                      <span className="font-medium">이상적인 점수:</span>
+                      <span className="ml-2">{explanation.idealScore}</span>
+                    </div>
+                    <div className="mt-2 text-gray-500">
+                      <span className="font-medium">적합한 경우:</span>
+                      <p className="mt-1">{explanation.useCase}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </main>
