@@ -20,4 +20,26 @@ export interface ModelEvaluation {
   type: string; // 모델 종류 (예: "LLM", "Vision")
   benchmarks: BenchmarkResult[]; // 해당 모델의 벤치마크 결과 목록
   averageScore?: number; // (선택 사항) 특정 기준에 의한 평균 점수
+  description?: string;
+  tags?: string[];
+  strengths?: string[];
+  useCases?: string[];
+  recommendedFor?: string[];
+}
+
+export interface BenchmarkExplanation {
+  name: string;
+  description: string;
+  higherIsBetter: boolean;
+  idealScore: string;
+  useCase: string;
+}
+
+export interface UseCasePreset {
+  id: string;
+  name: string;
+  description: string;
+  weights: {
+    [key: string]: number;
+  };
 } 

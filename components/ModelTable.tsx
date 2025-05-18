@@ -3,8 +3,9 @@
 import { useState } from 'react';
 // import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody } from "@/components/ui/table"; // shadcn/ui Table 임포트 제거
 import { ModelEvaluation, BenchmarkResult } from '@/lib/types';
-import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid'; // 아이콘 추가
+import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline'; // 아이콘 추가
 import clsx from 'clsx'; // 조건부 클래스 적용을 위한 라이브러리
+import { benchmarkExplanations } from '@/lib/data';
 
 interface ModelTableProps {
   evaluations: ModelEvaluation[];
@@ -19,6 +20,7 @@ export default function ModelTable({ evaluations }: ModelTableProps) {
 
   const [sortField, setSortField] = useState<SortField>('model');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [hoveredBenchmark, setHoveredBenchmark] = useState<string | null>(null);
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
@@ -64,7 +66,7 @@ export default function ModelTable({ evaluations }: ModelTableProps) {
     clsx(
       "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer",
       {
-        "text-primary-600": sortField === field,
+        "text-blue-600": sortField === field,
       }
     );
 
@@ -78,23 +80,62 @@ export default function ModelTable({ evaluations }: ModelTableProps) {
     }
   };
 
+  const getBenchmarkExplanation = (name: string) => {
+    return benchmarkExplanations.find(b => b.name === name);
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th className={getHeaderClass('model')} onClick={() => handleSort('model')}>모델 {renderSortIcon('model')}</th>
-            {allBenchmarkNames.map(name => (
-              <th key={name} className={getHeaderClass(name)} onClick={() => handleSort(name)}>
-                {name} {renderSortIcon(name)}
-              </th>
-            ))}
+            <th className={getHeaderClass('model')} onClick={() => handleSort('model')}>
+              모델 {renderSortIcon('model')}
+            </th>
+            {allBenchmarkNames.map(name => {
+              const explanation = getBenchmarkExplanation(name);
+              return (
+                <th
+                  key={name}
+                  className={getHeaderClass(name)}
+                  onClick={() => handleSort(name)}
+                  onMouseEnter={() => setHoveredBenchmark(name)}
+                  onMouseLeave={() => setHoveredBenchmark(null)}
+                >
+                  <div className="relative">
+                    {name} {renderSortIcon(name)}
+                    {hoveredBenchmark === name && explanation && (
+                      <div className="absolute z-10 w-64 p-2 mt-1 text-sm bg-white border rounded-lg shadow-lg">
+                        <p className="font-medium text-gray-900">{explanation.name}</p>
+                        <p className="text-gray-600 mt-1">{explanation.description}</p>
+                        <p className="text-blue-600 mt-1">이상적인 점수: {explanation.idealScore}</p>
+                        <p className="text-gray-500 mt-1">적합한 경우: {explanation.useCase}</p>
+                      </div>
+                    )}
+                  </div>
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {sortedEvaluations.map((evaluation) => (
             <tr key={evaluation.model} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{evaluation.model}</td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div>
+                  <div className="text-sm font-medium text-gray-900">{evaluation.model}</div>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {evaluation.tags?.map((tag, i) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </td>
               {allBenchmarkNames.map(name => (
                 <td key={name} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {getBenchmarkScore(evaluation.benchmarks, name)}
