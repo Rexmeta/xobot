@@ -2,18 +2,18 @@
 
 import { useState } from 'react';
 // import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody } from "@/components/ui/table"; // shadcn/ui Table 임포트 제거
-import { ModelEvaluation, BenchmarkResult } from '@/lib/types';
+import { ModelEvaluation, BenchmarkResult, BenchmarkExplanation } from '@/lib/types';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline'; // 아이콘 추가
 import clsx from 'clsx'; // 조건부 클래스 적용을 위한 라이브러리
-import { benchmarkExplanations } from '@/lib/data';
 
 interface ModelTableProps {
   evaluations: ModelEvaluation[];
+  benchmarkExplanations: BenchmarkExplanation[]; // benchmarkExplanations prop 추가
 }
 
 type SortField = string;
 
-export default function ModelTable({ evaluations }: ModelTableProps) {
+export default function ModelTable({ evaluations, benchmarkExplanations }: ModelTableProps) {
   const allBenchmarkNames = Array.from(new Set(
     evaluations.flatMap(evaluationItem => evaluationItem.benchmarks.map(b => b.name))
   ));
@@ -23,11 +23,14 @@ export default function ModelTable({ evaluations }: ModelTableProps) {
   const [hoveredBenchmark, setHoveredBenchmark] = useState<string | null>(null);
 
   const handleSort = (field: SortField) => {
+    const explanation = benchmarkExplanations.find(b => b.name === field);
+    const higherIsBetter = explanation ? explanation.higherIsBetter : true;
+
     if (field === sortField) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
       setSortField(field);
-      setSortDirection('asc');
+      setSortDirection(higherIsBetter ? 'desc' : 'asc');
     }
   };
 
@@ -42,11 +45,22 @@ export default function ModelTable({ evaluations }: ModelTableProps) {
       const aBenchmark = a.benchmarks.find(b => b.name === sortField);
       const bBenchmark = b.benchmarks.find(b => b.name === sortField);
 
-      const aValue = aBenchmark ? (typeof aBenchmark.score === 'number' ? aBenchmark.score : -Infinity) : -Infinity;
-      const bValue = bBenchmark ? (typeof bBenchmark.score === 'number' ? bBenchmark.score : -Infinity) : -Infinity;
+      const aValue = aBenchmark ? (typeof aBenchmark.score === 'number' ? aBenchmark.score : (sortDirection === 'asc' ? -Infinity : Infinity)) : (sortDirection === 'asc' ? -Infinity : Infinity);
+      const bValue = bBenchmark ? (typeof bBenchmark.score === 'number' ? bBenchmark.score : (sortDirection === 'asc' ? -Infinity : Infinity)) : (sortDirection === 'asc' ? -Infinity : Infinity);
 
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+
+      const explanation = benchmarkExplanations.find(exp => exp.name === sortField);
+      const higherIsBetter = explanation ? explanation.higherIsBetter : true;
+
+      if (aValue < bValue) {
+          if (higherIsBetter) return sortDirection === 'asc' ? -1 : 1;
+          else return sortDirection === 'asc' ? 1 : -1;
+      }
+       if (aValue > bValue) {
+          if (higherIsBetter) return sortDirection === 'asc' ? 1 : -1;
+          else return sortDirection === 'asc' ? -1 : 1;
+      }
+
       return 0;
     }
   });
@@ -55,10 +69,13 @@ export default function ModelTable({ evaluations }: ModelTableProps) {
     if (sortField !== field) {
       return null;
     }
+     const explanation = benchmarkExplanations.find(b => b.name === field);
+    const higherIsBetter = explanation ? explanation.higherIsBetter : true;
+
     if (sortDirection === 'asc') {
-      return <ChevronUpIcon className="ml-1 w-3 h-3 inline-block" />;
+      return higherIsBetter ? <ChevronUpIcon className="ml-1 w-3 h-3 inline-block" /> : <ChevronDownIcon className="ml-1 w-3 h-3 inline-block" />;
     } else {
-      return <ChevronDownIcon className="ml-1 w-3 h-3 inline-block" />;
+      return higherIsBetter ? <ChevronDownIcon className="ml-1 w-3 h-3 inline-block" /> : <ChevronUpIcon className="ml-1 w-3 h-3 inline-block" />;
     }
   };
 
@@ -74,7 +91,7 @@ export default function ModelTable({ evaluations }: ModelTableProps) {
     const benchmark = benchmarks.find(b => b.name === name);
     if (!benchmark) return '-';
     if (typeof benchmark.score === 'number') {
-      return `${benchmark.score.toFixed(1)}${benchmark.unit || ''}`;
+      return `${benchmark.score.toFixed(2)}${benchmark.unit || ''}`;
     } else {
       return `${benchmark.score}${benchmark.unit || ''}`;
     }
@@ -105,10 +122,13 @@ export default function ModelTable({ evaluations }: ModelTableProps) {
                   <div className="relative">
                     {name} {renderSortIcon(name)}
                     {hoveredBenchmark === name && explanation && (
-                      <div className="absolute z-10 w-64 p-2 mt-1 text-sm bg-white border rounded-lg shadow-lg">
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 z-10 w-64 p-2 mt-1 text-sm bg-white border rounded-lg shadow-lg">
                         <p className="font-medium text-gray-900">{explanation.name}</p>
                         <p className="text-gray-600 mt-1">{explanation.description}</p>
-                        <p className="text-blue-600 mt-1">이상적인 점수: {explanation.idealScore}</p>
+                        <p className={clsx("mt-1", explanation.higherIsBetter ? 'text-green-600' : 'text-red-600')}>
+                           {explanation.higherIsBetter ? '높을수록 좋음' : '낮을수록 좋음'}
+                        </p>
+                         <p className="text-blue-600 mt-1">이상적인 점수: {explanation.idealScore}</p>
                         <p className="text-gray-500 mt-1">적합한 경우: {explanation.useCase}</p>
                       </div>
                     )}
